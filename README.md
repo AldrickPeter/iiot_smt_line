@@ -1,6 +1,6 @@
 # Cloud-Connected OEE Monitoring for a Simulated SMT PCB Assembly Line
 
-*Shao-Chi Cheng · Aldrick Peter Thomas Peter · Yi-Hung Ting · Jatin*
+*Shao-Chi Cheng · Aldrick Peter · Yi-Hung Ting · Jatin Satyam*
 
 Surface-mount technology (SMT) assembly is the process used to build most modern printed circuit boards, and a typical line chains six machines together: a stencil printer, a solder paste inspection station, a pick-and-place machine, a reflow oven and two test stations. This repository holds our IIoT (Industrial Internet of Things) project: a working prototype that measures OEE (Overall Equipment Effectiveness) across such a line and shows where the losses come from. Since a real SMT line was not available to us, the data comes from a tick-based Python simulator that we built for the purpose. It models the machines, their consumables, wear, breakdowns and defects closely enough that OEE, first-pass yield and the downtime Pareto behave the way they do on a real line.
 
