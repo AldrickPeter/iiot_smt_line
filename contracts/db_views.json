@@ -1,0 +1,14 @@
+{
+  "v_station_status": ["run_id", "line", "station", "state", "reason_code", "category", "since_ts", "product"],
+  "v_buffer_levels": ["run_id", "line", "ts", "buffer", "level", "capacity"],
+  "v_station_oee": ["run_id", "line", "station", "shift", "shift_start", "planned_s", "running_s", "starved_s",
+                    "blocked_s", "own_loss_s", "boards", "ideal_work_s", "availability", "performance",
+                    "quality", "oee"],
+  "v_line_oee": ["run_id", "line", "shift", "shift_start", "planned_s", "good_out", "ideal_output_s", "oee"],
+  "v_downtime_pareto": ["run_id", "line", "station", "reason_code", "state", "total_s", "occurrences", "shift"],
+  "v_state_timeline": ["run_id", "line", "station", "start_ts", "end_ts", "state", "reason_code"],
+  "v_quality": ["run_id", "line", "shift", "finished", "good", "rework", "scrap", "fpy"],
+  "v_reject_blame": ["run_id", "line", "shift", "blamed_station", "defect_type", "count"],
+  "v_output_vs_target": ["run_id", "line", "product", "target_qty", "good_out", "due_ts", "on_track"],
+  "v_edge_health": ["site", "online", "last_seen_wall", "queued", "event_seq_gaps"]
+}

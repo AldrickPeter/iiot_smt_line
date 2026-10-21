@@ -1,0 +1,11 @@
+# A dummy order book: good boards per customer order, due in hours from the
+# start of the run. weight = how much a late hour of this order hurts
+# (weighted tardiness); 1 if omitted.
+
+orders:
+  - {id: SO-101, product: CTRL-BOARD-A,   quantity: 300, due_h: 16}
+  - {id: SO-102, product: SENSOR-BOARD-B, quantity: 200, due_h: 8}
+  - {id: SO-103, product: POWER-BOARD-C,  quantity: 250, due_h: 24}
+  - {id: SO-104, product: CTRL-BOARD-A,   quantity: 100, due_h: 10, weight: 2}
+  - {id: SO-105, product: POWER-BOARD-C,  quantity: 150, due_h: 12}
+  - {id: SO-106, product: SENSOR-BOARD-B, quantity: 120, due_h: 20}

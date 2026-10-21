@@ -1,0 +1,11 @@
+{
+  "seq": 4812,
+  "line": "line1",
+  "station": "pnp",
+  "ts": "2026-10-21T08:41:07.500Z",
+  "sim_time_s": 9667.5,
+  "old_state": "RUNNING",
+  "new_state": "DOWN",
+  "reason_code": "NOZZLE_CLOG",
+  "product": "CTRL-BOARD-A"
+}

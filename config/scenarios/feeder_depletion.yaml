@@ -1,0 +1,23 @@
+name: feeder_depletion
+description: >
+  The material handler is overloaded from the start: every low-reel call is
+  missed, and when a feeder actually runs empty it takes about 10 min for
+  someone to come. On top of that, three reels are found nearly empty during
+  the shift. Expected: the bottleneck (pick-and-place) loses most of its time
+  to FEEDER_EMPTY material stops.
+
+duration_h: 8
+
+config_overrides:
+  production_plan:
+    jobs: [{product: CTRL-BOARD-A}]
+
+interventions:
+  - {at_s: 0, action: set_operator_response, median_s: 600, sigma: 0.5}
+  - {at_s: 0, action: set_splice_miss_probability, station: pnp, probability: 1.0}
+  - {at_s: 1800, action: set_reel_qty, station: pnp, part: C0402-100N, qty: 200}
+  - {at_s: 5400, action: set_reel_qty, station: pnp, part: SOT23-NMOS, qty: 60}
+  - {at_s: 9000, action: set_reel_qty, station: pnp, part: QFN32-MCU, qty: 5}
+
+expected_root_cause:
+  bottleneck_stop: {station: pnp, reason_code: FEEDER_EMPTY}

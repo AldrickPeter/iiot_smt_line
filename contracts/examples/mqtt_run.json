@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "msg_id": "20261021T0600Z-s1-nozzle_fault/run",
+  "run_id": "20261021T0600Z-s1-nozzle_fault",
+  "ts": "2026-10-21T06:00:00.000Z",
+  "sim_time_s": 0,
+  "epoch": "2026-10-21T06:00:00.000Z",
+  "speed_factor": 60,
+  "seed": 1,
+  "scenario": "nozzle_fault",
+  "lines": [
+    "line1",
+    "line2"
+  ]
+}

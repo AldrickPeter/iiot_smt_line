@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smt-line.local/contracts/v1/mqtt_state.schema.json",
+  "title": "I3 smt/v1/<site>/<line>/<station>/state",
+  "type": "object",
+  "required": [
+    "v",
+    "msg_id",
+    "run_id",
+    "ts",
+    "sim_time_s",
+    "line",
+    "station",
+    "state",
+    "reason_code",
+    "category",
+    "product"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "msg_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "sim_time_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "line": {
+      "type": "string",
+      "pattern": "^line[0-9]+$"
+    },
+    "station": {
+      "enum": [
+        "printer",
+        "spi",
+        "pnp",
+        "reflow",
+        "aoi",
+        "ict"
+      ]
+    },
+    "state": {
+      "enum": [
+        "RUNNING",
+        "STARVED",
+        "BLOCKED",
+        "DOWN",
+        "STARVED_MATERIAL",
+        "SETUP",
+        "PM"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "CHANGEOVER",
+        "CONVEYOR_JAM",
+        "FEEDER_CHANGE",
+        "FEEDER_EMPTY",
+        "FIXTURE_CHANGE",
+        "FIXTURE_FAULT",
+        "HEAD_SERVO_FAULT",
+        "HEATER_FAULT",
+        "MANUAL_STOP",
+        "NOZZLE_CLOG",
+        "PASTE_LOW",
+        "PROFILE_CHANGE",
+        "PROGRAM_LOAD",
+        "STENCIL_CHANGE",
+        "STENCIL_WIPE",
+        "VISION_FAULT",
+        null
+      ]
+    },
+    "category": {
+      "enum": [
+        "productive",
+        "external",
+        "own_loss",
+        "planned"
+      ]
+    },
+    "product": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

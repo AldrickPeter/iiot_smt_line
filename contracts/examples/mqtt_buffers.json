@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "msg_id": "20261021T0600Z-s1-nozzle_fault/line1/buffers/9660",
+  "run_id": "20261021T0600Z-s1-nozzle_fault",
+  "ts": "2026-10-21T08:41:00.000Z",
+  "sim_time_s": 9660.0,
+  "line": "line1",
+  "levels": {
+    "buf_printer_spi": 3,
+    "buf_spi_pnp": 5,
+    "buf_pnp_reflow": 0,
+    "buf_reflow_aoi": 1,
+    "buf_aoi_ict": 0
+  },
+  "capacity": 5
+}

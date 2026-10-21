@@ -1,0 +1,10 @@
+[project]
+name = "smt_sim"
+version = "0.1.0"
+description = "Tick-based simulator of a six-station SMT assembly line"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+# Lets tests and scripts `import smt_sim` without installing the package.
+pythonpath = ["."]
+testpaths = ["tests"]

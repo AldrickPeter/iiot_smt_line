@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smt-line.local/contracts/v1/mqtt_counts.schema.json",
+  "title": "I3 smt/v1/<site>/<line>/<station>/counts",
+  "type": "object",
+  "required": [
+    "v",
+    "msg_id",
+    "run_id",
+    "ts",
+    "sim_time_s",
+    "line",
+    "station",
+    "part_count",
+    "reject_count",
+    "part_count_by_product",
+    "speed_pct"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "msg_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "sim_time_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "line": {
+      "type": "string",
+      "pattern": "^line[0-9]+$"
+    },
+    "station": {
+      "enum": [
+        "printer",
+        "spi",
+        "pnp",
+        "reflow",
+        "aoi",
+        "ict"
+      ]
+    },
+    "part_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reject_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "part_count_by_product": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "speed_pct": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 100
+    },
+    "extra": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,266 @@
+# Default line configuration. All times are in seconds.
+# Values are placeholders meant to be tuned.
+
+sim:
+  tick_s: 0.5          # simulated seconds per step()
+  seed: 42             # one RNG per run, created from this seed
+
+# Each product: its BOM (part number -> quantity per board) and reflow peak
+# temperature. Pick-and-place time scales with the part count:
+#   A 120 parts -> 38 s, B 104 -> 34 s, C 96 -> 32 s (all slower than the
+#   other stations, so pick-and-place stays the bottleneck for every product).
+products:
+  CTRL-BOARD-A:
+    reflow_peak_c: 245
+    bom:
+      R0402-10K: 40
+      C0402-100N: 50
+      C0805-10U: 12
+      LED0603-GRN: 8
+      SOT23-NMOS: 6
+      SOIC8-EEPROM: 2
+      QFN32-MCU: 1
+      USBC-CONN: 1
+  SENSOR-BOARD-B:      # shares 4 part numbers with A
+    reflow_peak_c: 240
+    bom:
+      R0402-10K: 40
+      C0402-100N: 44
+      LED0603-GRN: 6
+      SOT23-NMOS: 6
+      SOIC8-OPAMP: 4
+      QFN24-SENSOR: 2
+      JST-CONN: 2
+  POWER-BOARD-C:       # shares only 2 part numbers with A
+    reflow_peak_c: 250
+    bom:
+      C0402-100N: 30
+      C0805-10U: 24
+      R0805-1R: 16
+      C1206-47U: 12
+      SOT223-LDO: 4
+      DPAK-MOSFET: 6
+      INDUCTOR-4R7: 2
+      TERMINAL-2P: 2
+
+# Boards are released job by job. quantity omitted = run that product forever.
+production_plan:
+  repeat: true
+  jobs:
+    - {product: CTRL-BOARD-A,   quantity: 150}
+    - {product: SENSOR-BOARD-B, quantity: 100}
+    - {product: POWER-BOARD-C,  quantity: 100}
+
+# Which station an inspector blames for each defect type. Shared by SPI, AOI
+# and ICT through a YAML anchor (&attribution here, *attribution below).
+attribution: &attribution
+  INSUFFICIENT_PASTE: printer
+  EXCESS_PASTE: printer
+  MISPLACEMENT: pnp
+  TOMBSTONE: reflow
+  COLD_JOINT: reflow
+  VOID: reflow
+
+line:
+  buffer_capacity: 5   # max boards waiting on each inter-station conveyor
+
+  operator:            # answers machine calls (paste low, low reel)
+    response_median_s: 240
+    response_sigma: 0.7
+
+  # Listed upstream -> downstream. The order here IS the line order.
+  #
+  # Per station:
+  #   cycle_time_sd_s   normal jitter added to each board's cycle time
+  #                     (clipped so a board is never faster than ideal)
+  #   failures          list of failure modes. Time to failure counts RUNNING
+  #                     time only. Repairs are lognormal (median + log-sigma).
+  #     exponential:    mtbf_s                  constant hazard (random faults)
+  #     weibull:        shape (>1), scale_s     rising hazard (wear-out)
+  #   changeover        SETUP when the first board of a new product arrives:
+  #                     reason code + time_s (pick-and-place adds per_feeder_s)
+  #   speed_pct         percent of rated speed (default 100). Cycle times are
+  #                     rated / speed; OEE still measures against rated speed,
+  #                     so running slower shows as a performance loss.
+  stations:
+    - name: printer
+      type: printer
+      cycle_time_s: 22.0
+      cycle_time_sd_s: 1.0
+      changeover: {reason: STENCIL_CHANGE, time_s: 600}
+      failures:
+        - reason: CONVEYOR_JAM
+          distribution: exponential
+          mtbf_s: 21600             # 6 h of running
+          repair_median_s: 120
+          repair_sigma: 0.5
+      paste:
+        initial_g: 400
+        per_print_mean_g: 1.2
+        per_print_sd_g: 0.1
+        low_limit_g: 150            # below this -> PASTE_LOW stop
+        refill_g: 300
+        refill_time_s: 60           # after the operator arrives
+        open_time_grace_h: 4.0      # paste works fine this long on the stencil
+        open_time_loss_pct_per_h: 3.0
+      stencil:                      # one stencil per product, all with these settings
+        wipe_every_prints: 10
+        wipe_time_s: 25
+        clog_loss_pct_per_print: 0.8     # transfer lost per print since last wipe
+        wear_loss_pct_per_1k_cycles: 0.3 # permanent drift over stencil life
+        initial_cycles: 20000            # stencils are not new: -6 % already
+      print_quality:
+        nominal_volume_pct: 104.0   # new stencil, fresh paste, just wiped
+        board_volume_sd_pct: 2.5    # board-to-board noise
+        pad_volume_sd_pct: 6.0      # pad-to-pad noise within a board
+        pads_per_board: 400
+        insufficient_below_pct: 70  # true defect limits for a pad
+        excess_above_pct: 130
+
+    - name: spi
+      type: spi
+      cycle_time_s: 20.0
+      cycle_time_sd_s: 0.5
+      changeover: {reason: PROGRAM_LOAD, time_s: 120}
+      failures:
+        - reason: VISION_FAULT
+          distribution: exponential
+          mtbf_s: 28800             # 8 h
+          repair_median_s: 300
+          repair_sigma: 0.6
+      spec_pct: {min: 70, max: 130} # flag if the MEASURED min/max pad is outside
+      measurement_noise_pct: 1.5
+      scrap_if_calls_at_least: 3
+      attribution: *attribution
+
+    - name: pnp
+      type: pnp
+      board_handling_s: 8.0          # transfer in/out + fiducial alignment
+      time_per_component_s: 0.25     # rated: e.g. 8 + 0.25 * 120 = 38 s/board -> bottleneck
+      cycle_time_sd_s: 1.5
+      speed_pct: 100                 # try 80-90: slower, but more accurate
+      speed_effects:                 # how head speed changes accuracy (s = speed / 100)
+        offset_sd_exponent: 0.75     # offset spread x s^0.75  (80 % -> 0.85x)
+        pick_fail_exponent: 1.0      # pick failures x s^1.0   (80 % -> 0.80x)
+      changeover: {reason: FEEDER_CHANGE, time_s: 300, per_feeder_s: 90}
+      failures:
+        - reason: CONVEYOR_JAM
+          distribution: exponential
+          mtbf_s: 14400             # 4 h
+          repair_median_s: 180
+          repair_sigma: 0.5
+        - reason: HEAD_SERVO_FAULT
+          distribution: weibull
+          shape: 2.5                # wear-out: hazard grows with running age
+          scale_s: 36000            # characteristic life 10 h of running
+          repair_median_s: 1200
+          repair_sigma: 0.6
+      nozzles:
+        count: 4                    # picks rotate across nozzles
+        clog_shape: 3.0             # Weibull beta, per pick since cleaning
+        clog_scale_picks: 25000     # ~9 h of picking per nozzle
+        base_offset_sd_um: 15
+        wear_offset_sd_um: 25       # added at picks_since_clean == scale
+        clog_offset_sd_um: 60       # added while clogged
+        base_pick_fail_prob: 0.0005
+        clog_pick_fail_prob: 0.30
+        clog_detect_consecutive_fails: 3   # vision stops the machine after this
+        clean_time_s: 90
+      feeders:
+        slot_count: 12              # A+B together fit; switching to C swaps feeders out
+        low_reel_warning_boards: 15 # call operator when < 15 boards of parts left
+        splice_miss_probability: 0.1
+        reel_change_time_s: 120     # load a new reel after running empty
+        # initial_qty staggered so reels don't all run out together.
+        # tolerance_um: placement offset beyond this is a MISPLACEMENT defect
+        # (roughly half the pad overlap; tighter for fine-pitch QFNs).
+        parts:
+          R0402-10K:    {reel_qty: 10000, initial_qty: 6000, mispick_rate: 0.0005, tolerance_um: 150}
+          C0402-100N:   {reel_qty: 10000, initial_qty: 9000, mispick_rate: 0.0005, tolerance_um: 150}
+          C0805-10U:    {reel_qty: 4000,  initial_qty: 3000, mispick_rate: 0.0003, tolerance_um: 250}
+          LED0603-GRN:  {reel_qty: 4000,  initial_qty: 2500, mispick_rate: 0.0003, tolerance_um: 200}
+          SOT23-NMOS:   {reel_qty: 3000,                     mispick_rate: 0.0003, tolerance_um: 200}
+          SOIC8-EEPROM: {reel_qty: 2500,                     mispick_rate: 0.0002, tolerance_um: 250}
+          QFN32-MCU:    {reel_qty: 490,   initial_qty: 300,  mispick_rate: 0.001, tolerance_um: 100}
+          USBC-CONN:    {reel_qty: 500,   initial_qty: 400,  mispick_rate: 0.001, tolerance_um: 150}
+          SOIC8-OPAMP:  {reel_qty: 2500,                     mispick_rate: 0.0002, tolerance_um: 250}
+          QFN24-SENSOR: {reel_qty: 490,                      mispick_rate: 0.001, tolerance_um: 100}
+          JST-CONN:     {reel_qty: 1000,                     mispick_rate: 0.001, tolerance_um: 200}
+          R0805-1R:     {reel_qty: 4000,                     mispick_rate: 0.0003, tolerance_um: 250}
+          C1206-47U:    {reel_qty: 3000,                     mispick_rate: 0.0003, tolerance_um: 300}
+          SOT223-LDO:   {reel_qty: 1000,                     mispick_rate: 0.0005, tolerance_um: 250}
+          DPAK-MOSFET:  {reel_qty: 800,                      mispick_rate: 0.0008, tolerance_um: 300}
+          INDUCTOR-4R7: {reel_qty: 500,                      mispick_rate: 0.001, tolerance_um: 300}
+          TERMINAL-2P:  {reel_qty: 300,                      mispick_rate: 0.001, tolerance_um: 300}
+
+    - name: reflow
+      type: reflow
+      transit_time_s: 300.0          # time for a board to cross the oven
+      conveyor_length_mm: 4000.0
+      board_pitch_mm: 250.0          # min spacing -> 16 boards max, 1 entry / 18.75 s
+      changeover: {reason: PROFILE_CHANGE, time_s: 600}   # zones settle at new temps
+      temperature:
+        drift_sd_c: 3.0               # peak zone wanders about ±3 °C around setpoint
+        drift_time_constant_s: 7200   # ... slowly (hours)
+        board_sd_c: 1.0               # board-to-board spread
+      solder_defects:
+        cold_margin_c: 5              # below setpoint - 5 °C cold joints start
+        cold_joint_per_c: 0.05        # +5 % probability per °C further below
+        void_base_prob: 0.003
+        void_margin_c: 5
+        void_per_c: 0.03
+        tombstone_parts: [R0402-10K, C0402-100N]   # small chips that can stand up
+        tombstone_base_prob: 0.00001  # per chip
+        tombstone_per_c: 0.00001      # per chip per °C of deviation
+      failures:
+        - reason: HEATER_FAULT
+          distribution: exponential
+          mtbf_s: 86400             # 24 h
+          repair_median_s: 900
+          repair_sigma: 0.5
+
+    - name: aoi
+      type: aoi
+      cycle_time_s: 25.0
+      cycle_time_sd_s: 0.8
+      changeover: {reason: PROGRAM_LOAD, time_s: 120}
+      failures:
+        - reason: VISION_FAULT
+          distribution: exponential
+          mtbf_s: 28800
+          repair_median_s: 300
+          repair_sigma: 0.6
+      detection_rate:               # chance AOI sees a real defect of each type
+        MISPLACEMENT: 0.95
+        INSUFFICIENT_PASTE: 0.60
+        EXCESS_PASTE: 0.85
+        TOMBSTONE: 0.98
+        COLD_JOINT: 0.50
+        VOID: 0.0                   # hidden under the part: AOI can't see it
+      false_calls_per_board: 0.02
+      false_call_types: [MISPLACEMENT, INSUFFICIENT_PASTE, TOMBSTONE]
+      scrap_if_calls_at_least: 3
+      attribution: *attribution
+
+    - name: ict
+      type: ict
+      cycle_time_s: 30.0
+      cycle_time_sd_s: 1.0
+      changeover: {reason: FIXTURE_CHANGE, time_s: 900}
+      failures:
+        - reason: FIXTURE_FAULT
+          distribution: exponential
+          mtbf_s: 21600
+          repair_median_s: 300
+          repair_sigma: 0.7
+      detection_rate:               # electrical test: catches opens and shorts
+        INSUFFICIENT_PASTE: 0.70
+        EXCESS_PASTE: 0.95
+        MISPLACEMENT: 0.40
+        TOMBSTONE: 0.95
+        COLD_JOINT: 0.50
+        VOID: 0.05
+      false_calls_per_board: 0.003
+      false_call_types: [COLD_JOINT]
+      scrap_if_calls_at_least: 3
+      attribution: *attribution

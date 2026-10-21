@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smt-line.local/contracts/v1/mqtt_board.schema.json",
+  "title": "I3 smt/v1/<site>/<line>/board",
+  "type": "object",
+  "required": [
+    "v",
+    "msg_id",
+    "run_id",
+    "ts",
+    "sim_time_s",
+    "line",
+    "serial",
+    "product",
+    "disposition",
+    "rejected_at",
+    "detected_defects",
+    "false_calls",
+    "order_id"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "msg_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "sim_time_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "line": {
+      "type": "string",
+      "pattern": "^line[0-9]+$"
+    },
+    "serial": {
+      "type": "string",
+      "pattern": "^SN[0-9]+$"
+    },
+    "product": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disposition": {
+      "enum": [
+        "good",
+        "rework",
+        "scrap"
+      ]
+    },
+    "rejected_at": {
+      "enum": [
+        "spi",
+        "aoi",
+        "ict",
+        null
+      ]
+    },
+    "detected_defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "detected_at",
+          "attributed_origin"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "COLD_JOINT",
+              "EXCESS_PASTE",
+              "INSUFFICIENT_PASTE",
+              "MISPLACEMENT",
+              "TOMBSTONE",
+              "VOID"
+            ]
+          },
+          "detected_at": {
+            "enum": [
+              "spi",
+              "aoi",
+              "ict"
+            ]
+          },
+          "attributed_origin": {
+            "enum": [
+              "printer",
+              "spi",
+              "pnp",
+              "reflow",
+              "aoi",
+              "ict"
+            ]
+          }
+        }
+      }
+    },
+    "false_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "detected_at"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "COLD_JOINT",
+              "EXCESS_PASTE",
+              "INSUFFICIENT_PASTE",
+              "MISPLACEMENT",
+              "TOMBSTONE",
+              "VOID"
+            ]
+          },
+          "detected_at": {
+            "enum": [
+              "spi",
+              "aoi",
+              "ict"
+            ]
+          }
+        }
+      }
+    },
+    "order_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

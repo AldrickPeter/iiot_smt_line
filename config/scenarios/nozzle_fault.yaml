@@ -1,0 +1,21 @@
+name: nozzle_fault
+description: >
+  The pick-and-place vision check has been set too lenient (it only stops
+  after 6 failed picks in a row instead of 3), and nozzle 1 clogs at
+  t = 30 min. The clogged nozzle keeps placing parts with large offsets for a
+  while before the machine notices, and so does any nozzle that clogs on its
+  own later. Expected: misplacement defects blamed on pick-and-place top the
+  defect Pareto, and the true defects trace back to clogged nozzles.
+
+duration_h: 4
+
+config_overrides:
+  production_plan:
+    jobs: [{product: CTRL-BOARD-A}]
+
+interventions:
+  - {at_s: 0, action: set_clog_detection, station: pnp, consecutive_fails: 6}
+  - {at_s: 1800, action: clog_nozzle, station: pnp, nozzle: 1}
+
+expected_root_cause:
+  defect: {station: pnp, type: MISPLACEMENT}

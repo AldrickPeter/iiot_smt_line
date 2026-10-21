@@ -1,0 +1,17 @@
+# 14 randomly generated orders (seed 7), saved so the order book is fixed and readable.
+
+orders:
+  - {id: SO-301, product: POWER-BOARD-C, quantity: 170, due_h: 9.0, weight: 1}
+  - {id: SO-302, product: SENSOR-BOARD-B, quantity: 250, due_h: 14.25, weight: 1}
+  - {id: SO-303, product: POWER-BOARD-C, quantity: 80, due_h: 12.0, weight: 2}
+  - {id: SO-304, product: POWER-BOARD-C, quantity: 250, due_h: 14.25, weight: 2}
+  - {id: SO-305, product: SENSOR-BOARD-B, quantity: 70, due_h: 5.75, weight: 3}
+  - {id: SO-306, product: POWER-BOARD-C, quantity: 160, due_h: 10.0, weight: 1}
+  - {id: SO-307, product: POWER-BOARD-C, quantity: 250, due_h: 4.0, weight: 1}
+  - {id: SO-308, product: CTRL-BOARD-A, quantity: 120, due_h: 9.0, weight: 1}
+  - {id: SO-309, product: CTRL-BOARD-A, quantity: 130, due_h: 8.5, weight: 3}
+  - {id: SO-310, product: CTRL-BOARD-A, quantity: 110, due_h: 10.25, weight: 3}
+  - {id: SO-311, product: CTRL-BOARD-A, quantity: 230, due_h: 9.0, weight: 1}
+  - {id: SO-312, product: POWER-BOARD-C, quantity: 110, due_h: 6.25, weight: 1}
+  - {id: SO-313, product: POWER-BOARD-C, quantity: 290, due_h: 3.75, weight: 1}
+  - {id: SO-314, product: CTRL-BOARD-A, quantity: 160, due_h: 11.0, weight: 1}

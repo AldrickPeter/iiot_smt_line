@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smt-line.local/contracts/v1/mqtt_edge_status.schema.json",
+  "title": "I3 smt/v1/<site>/edge/status",
+  "type": "object",
+  "required": [
+    "v",
+    "online"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "online": {
+      "type": "boolean"
+    },
+    "wall_ts": {
+      "type": "string"
+    },
+    "queued": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "event_seq_gaps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "opcua_connected": {
+      "type": "boolean"
+    }
+  }
+}

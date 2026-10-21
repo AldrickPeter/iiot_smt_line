@@ -1,0 +1,21 @@
+path,data_type,access,notes
+Run.RunId,String,read,
+Run.Epoch,DateTime,read,
+Run.SimTime,DateTime,read,ts of the latest tick (1 s resolution)
+Run.SpeedFactor,Double,read,0 = unpaced (as fast as possible)
+Run.Scenario,String,read,"" for baseline
+<line>.<station>.State,String,read,StationState value
+<line>.<station>.ReasonCode,String,read,"" when none
+<line>.<station>.StateSince,DateTime,read,
+<line>.<station>.Product,String,read,"" before the first board
+<line>.<station>.IdealCycle_s,Double,read,for Product at 100 % speed
+<line>.<station>.PartCount,UInt32,read,cumulative
+<line>.<station>.RejectCount,UInt32,read,cumulative
+<line>.<station>.SpeedPct,Double,read,read-only in v1; writing comes with the control path
+<line>.<station>.Extra.<tag>,any,read,station-specific tags from get_tags() plus parts_<PRODUCT>
+<line>.Buffers.<buffer>.Level,UInt32,read,
+<line>.Buffers.<buffer>.Capacity,UInt32,read,
+<line>.Stream.EventSeq,UInt32,read,+1 per state change on this line
+<line>.Stream.LastEvent,String,read,JSON: schemas/opcua_last_event.schema.json
+<line>.Stream.BoardSeq,UInt32,read,+1 per finished board on this line
+<line>.Stream.LastBoard,String,read,JSON: schemas/opcua_last_board.schema.json

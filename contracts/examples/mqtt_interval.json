@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "msg_id": "20261021T0600Z-s1-nozzle_fault/line1/interval/4790",
+  "run_id": "20261021T0600Z-s1-nozzle_fault",
+  "ts": "2026-10-21T08:41:07.500Z",
+  "sim_time_s": 9667.5,
+  "line": "line1",
+  "station": "pnp",
+  "state": "RUNNING",
+  "reason_code": null,
+  "category": "productive",
+  "start": "2026-10-21T08:30:02.000Z",
+  "end": "2026-10-21T08:41:07.500Z",
+  "duration_s": 665.5,
+  "product": "CTRL-BOARD-A"
+}

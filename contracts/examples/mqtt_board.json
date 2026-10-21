@@ -1,0 +1,21 @@
+{
+  "v": 1,
+  "msg_id": "20261021T0600Z-s1-nozzle_fault/line1/board/SN000233",
+  "run_id": "20261021T0600Z-s1-nozzle_fault",
+  "ts": "2026-10-21T08:52:10.000Z",
+  "sim_time_s": 10330.0,
+  "line": "line1",
+  "serial": "SN000233",
+  "product": "CTRL-BOARD-A",
+  "disposition": "rework",
+  "rejected_at": "aoi",
+  "detected_defects": [
+    {
+      "type": "MISPLACEMENT",
+      "detected_at": "aoi",
+      "attributed_origin": "pnp"
+    }
+  ],
+  "false_calls": [],
+  "order_id": null
+}

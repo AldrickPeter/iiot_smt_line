@@ -1,0 +1,18 @@
+name: stencil_wear
+description: >
+  The CTRL-BOARD-A stencil is damaged at t = 2 h and from then on wears 12x
+  faster. Paste volume slowly drifts down until more and more pads fall below
+  the 70 % spec. Expected: insufficient-paste defects blamed on the printer
+  climb far above normal and top the defect Pareto.
+
+duration_h: 12
+
+config_overrides:
+  production_plan:
+    jobs: [{product: CTRL-BOARD-A}]   # one product: no stencil swaps to hide the drift
+
+interventions:
+  - {at_s: 7200, action: accelerate_stencil_wear, station: printer, factor: 12}
+
+expected_root_cause:
+  defect: {station: printer, type: INSUFFICIENT_PASTE}

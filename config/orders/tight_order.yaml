@@ -1,0 +1,13 @@
+# Same scale of work as demo_order.yaml, but with tight, conflicting due
+# dates: not every order can be on time, so the plan decides WHICH orders are
+# late and by how much. weight = cost per late hour (urgent customers 2-3).
+
+orders:
+  - {id: SO-201, product: CTRL-BOARD-A,   quantity: 200, due_h: 4}
+  - {id: SO-202, product: SENSOR-BOARD-B, quantity: 150, due_h: 3}
+  - {id: SO-203, product: POWER-BOARD-C,  quantity: 180, due_h: 6}
+  - {id: SO-204, product: CTRL-BOARD-A,   quantity: 120, due_h: 5, weight: 2}
+  - {id: SO-205, product: POWER-BOARD-C,  quantity: 100, due_h: 3.5}
+  - {id: SO-206, product: SENSOR-BOARD-B, quantity: 160, due_h: 6.5}
+  - {id: SO-207, product: CTRL-BOARD-A,   quantity: 80,  due_h: 2.5, weight: 3}
+  - {id: SO-208, product: POWER-BOARD-C,  quantity: 120, due_h: 7}

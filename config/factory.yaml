@@ -1,0 +1,32 @@
+# A factory with several SMT lines running side by side on one clock.
+#
+# Each line starts from a base config (config/default.yaml unless
+# `base_config` names another file) and applies its own overrides:
+#   config_overrides    deep-merged into the whole config (e.g. production_plan)
+#   station_overrides   deep-merged into one station's config, by station name
+#
+# Lines share nothing yet: each has its own operator, buffers and production
+# plan. Every line gets its own random stream derived from the factory seed.
+
+seed: 42
+
+lines:
+  line1:
+    description: Original line, makes all three products.
+    # no overrides: config/default.yaml as-is
+
+  line2:
+    description: >
+      Newer line with a faster placement machine, dedicated to the sensor and
+      power boards. Pick-and-place is now faster than ICT (30 s), so ICT is
+      this line's bottleneck.
+    config_overrides:
+      production_plan:
+        repeat: true
+        jobs:
+          - {product: POWER-BOARD-C,  quantity: 300}
+          - {product: SENSOR-BOARD-B, quantity: 200}
+    station_overrides:
+      pnp:
+        time_per_component_s: 0.18   # newer head: C 25.3 s, B 26.7 s per board
+        cycle_time_sd_s: 1.0
